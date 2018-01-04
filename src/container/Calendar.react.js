@@ -18,9 +18,9 @@ import {
 
 // Component specific libraries.
 import _ from 'lodash';
+import 'moment/locale/es';
 import Moment from 'moment';
 // Pure components importing.
-import ViewPropTypes from '../util/ViewPropTypes';
 import YearSelector from '../pure/YearSelector.react';
 import MonthSelector from '../pure/MonthSelector.react';
 import DaySelector from '../pure/DaySelector.react';
@@ -49,17 +49,17 @@ type Props = {
   // not be able to select the month.
   finalStage: Stage,
   // General styling properties.
-  style?: ViewPropTypes.style,
-  barView?: ViewPropTypes.style,
+  style?: View.propTypes.style,
+  barView?: View.propTypes.style,
   barText?: Text.propTypes.style,
-  stageView?: ViewPropTypes.style,
+  stageView?: View.propTypes.style,
   showArrows: boolean,
   // Styling properties for selecting the day.
-  dayHeaderView?: ViewPropTypes.style,
+  dayHeaderView?: View.propTypes.style,
   dayHeaderText?: Text.propTypes.style,
-  dayRowView?: ViewPropTypes.style,
-  dayView?: ViewPropTypes.style,
-  daySelectedView?: ViewPropTypes.style,
+  dayRowView?: View.propTypes.style,
+  dayView?: View.propTypes.style,
+  daySelectedView?: View.propTypes.style,
   dayText?: Text.propTypes.style,
   dayTodayText?: Text.propTypes.style,
   daySelectedText?: Text.propTypes.style,
@@ -92,16 +92,17 @@ export default class Calendar extends Component {
                   props.finalStage : props.startStage;
     this.state = {
       stage: stage,
-      focus: Moment(props.selected).startOf('month'),
+      focus: Moment(props.selected).locale('es').startOf('month'),
       monthOffset: 0,
     }
   }
 
   _stageText = () : string => {
+    Moment.locale('es');
     if (this.state.stage === DAY_SELECTOR) {
-      return this.state.focus.format('MMMM YYYY');
+      return this.state.focus.locale('es').format('MMMM YYYY');
     } else {
-      return this.state.focus.format('YYYY');
+      return this.state.focus.locale('es').format('YYYY');
     }
   }
 
@@ -198,12 +199,14 @@ export default class Calendar extends Component {
             this.state.stage === DAY_SELECTOR ?
             <DaySelector
               focus={this.state.focus}
+              openTimePicker={this.props.openTimePicker.bind(this)}
               selected={this.props.selected}
               onFocus={this._changeFocus}
               onChange={(date) => this.props.onChange && this.props.onChange(date)}
               monthOffset={this.state.monthOffset}
               minDate={this.props.minDate}
               maxDate={this.props.maxDate}
+              activeDays={this.props.activeDays}
               // Control properties
               slideThreshold={this.props.slideThreshold}
               // Transfer the corresponding styling properties.

@@ -11,14 +11,13 @@ import {
   Text,
   StyleSheet,
 } from 'react-native';
-import ViewPropTypes from '../util/ViewPropTypes';
 
 // Component specific libraries.
 import _ from 'lodash';
 import Moment from 'moment';
 
 type Props = {
-  style?: ViewPropTypes.style,
+  style?: View.propTypes.style,
   // Focus and onFocus for managing the calendar.
   focus: Moment,
   onFocus?: (date : Moment) => void,

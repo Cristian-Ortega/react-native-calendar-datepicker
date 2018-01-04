@@ -70,14 +70,14 @@ Below is the list of properties that can be used for styling. For a concrete exa
 
 | Property | Type | Explanation
 | --- | --- | ---
-| style | View.propTypes.style | View wrapper of the calendar
-| barView | View.propTypes.style | Styling the view wrapper for the bar at the top of the component
+| style | PropTypes.style | View wrapper of the calendar
+| barView | PropTypes.style | Styling the view wrapper for the bar at the top of the component
 | barText | Text.propTypes.style | Styling the text in the top bar
-| stageView | View.propTypes.style | Styling the view wrapper of the current stage
-| dayHeaderView | View.propTypes.style | Styling the view wrapper of day names
+| stageView | PropTypes.style | Styling the view wrapper of the current stage
+| dayHeaderView | PropTypes.style | Styling the view wrapper of day names
 | dayHeaderText | Text.propTypes.style | Styling the text of day names
-| dayRowView | View.propTypes.style | Styling each  row view of days
-| dayView | View.propTypes.style | View wrapper of each day
+| dayRowView | PropTypes.style | Styling each  row view of days
+| dayView | PropTypes.style | View wrapper of each day
 | dayText | Text.propTypes.style | Styling the text of each day number
 | dayTodayText | Text.propTypes.style | Highlighting today in the calendar
 | daySelectedText | Text.propTypes.style | Highlighting the selected day in the calendar
@@ -89,6 +89,8 @@ Below is the list of properties that can be used for styling. For a concrete exa
 | yearMaxTintColor | string | Styling right side of year slider
 | yearSlider | Slider.propTypes.style | Styling the year slider
 | yearText | Text.propTypes.style | Styling the year text
+
+
 
 ## TODO
 

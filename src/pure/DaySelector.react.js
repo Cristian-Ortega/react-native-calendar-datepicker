@@ -14,7 +14,6 @@ import {
   Text,
   StyleSheet,
 } from 'react-native';
-import ViewPropTypes from '../util/ViewPropTypes';
 
 // Component specific libraries.
 import _ from 'lodash';
@@ -32,11 +31,11 @@ type Props = {
   minDate: Moment,
   maxDate: Moment,
   // Styling properties.
-  dayHeaderView?: ViewPropTypes.style,
+  dayHeaderView?: View.propTypes.style,
   dayHeaderText?: Text.propTypes.style,
-  dayRowView?: ViewPropTypes.style,
-  dayView?: ViewPropTypes.style,
-  daySelectedView?: ViewPropTypes.style,
+  dayRowView?: View.propTypes.style,
+  dayView?: View.propTypes.style,
+  daySelectedView?: View.propTypes.style,
   dayText?: Text.propTypes.style,
   dayTodayText?: Text.propTypes.style,
   daySelectedText?: Text.propTypes.style,
@@ -56,6 +55,7 @@ export default class DaySelector extends Component {
     super(props);
     this.state = {
       days: this._computeDays(props),
+      activeDays: this.props.activeDays
     }
   }
 
@@ -104,19 +104,18 @@ export default class DaySelector extends Component {
         // update.
         if (Math.abs(dx) > threshold && valid) {
           // Animate to the outside of the device the current scene.
-          LayoutAnimation.linear(() => {
-            // After that animation, update the focus date and then swipe in
-            // the corresponding updated scene.
-            this.props.onFocus && this.props.onFocus(newFocus);
-            LayoutAnimation.easeInEaseOut();
+          LayoutAnimation.linear();
+          // After that animation, update the focus date and then swipe in
+          // the corresponding updated scene.
+          setTimeout(() => {
+            this._slide(dx < 0 ? maxOffset : -maxOffset)
             setTimeout(() => {
-              this._slide(dx < 0 ? maxOffset : -maxOffset)
-              setTimeout(() => {
-                LayoutAnimation.easeInEaseOut();
-                this._slide(0)
-              }, 0)
+              //LayoutAnimation.easeInEaseOut();
+              this._slide(0)
             }, 0)
-          });
+          }, 0)
+          this.props.onFocus && this.props.onFocus(newFocus);
+          LayoutAnimation.easeInEaseOut();
           this._slide(dx > 0 ? maxOffset : -maxOffset);
           return;
         } else {
@@ -153,6 +152,32 @@ export default class DaySelector extends Component {
     }
   }
 
+  compareResultWithActiveDays(result, month, year){
+
+    var dateString = "/"+month+"/"+year
+
+    for(var i in result){
+      for(var n in result[i]){
+        var day = result[i][n]
+        var dayMoment = Moment(day.date+dateString,'DD/MM/YYYY')
+        var dayMomentTest = Moment('02/09/2017','DD/MM/YYYY')
+        result[i][n].extra = this.checkDayActive(dayMoment)
+      }
+    }
+
+    return result;
+  }
+
+  checkDayActive(moment){
+    for(date in this.props.activeDays){
+      var dayMoment = Moment(date,'DD/MM/YYYY')
+      if(moment.isSame(dayMoment) && this.props.activeDays[date]){
+        return true;
+      }
+    }
+    return false;
+  }
+
   _computeDays = (props: Object) : Array<Array<Object>> => {
     let result = [];
     const currentMonth = props.focus.month();
@@ -172,8 +197,11 @@ export default class DaySelector extends Component {
       // Add it to the result here.
       iterator.add(1, 'day');
     }
-    LayoutAnimation.easeInEaseOut();
-    return result;
+    //LayoutAnimation.easeInEaseOut();
+
+    var filteredResult = this.compareResultWithActiveDays(result,currentMonth+1,props.focus.year())
+
+    return filteredResult;
   };
 
   _onChange = (day : Object) : void => {
@@ -203,6 +231,7 @@ export default class DaySelector extends Component {
               {_.map(week, (day, j) =>
                 <TouchableHighlight
                   key={j}
+                  disabled={!day.extra}
                   style={[
                     styles.dayView,
                     this.props.dayView,
@@ -210,18 +239,23 @@ export default class DaySelector extends Component {
                   ]}
                   activeOpacity={day.valid ? 0.8 : 1}
                   underlayColor='transparent'
-                  onPress={() => day.valid && this._onChange(day)}>
-                  <Text style={[
-                    styles.dayText,
-                    this.props.dayText,
-                    day.today ? this.props.dayTodayText : null,
-                    day.selected ? styles.selectedText : null,
-                    day.selected ? this.props.daySelectedText : null,
-                    day.valid ? null : styles.disabledText,
-                    day.valid ? null : this.props.dayDisabledText,
-                  ]}>
-                    {day.date}
-                  </Text>
+                  onPress={() => {
+                    day.valid && this._onChange(day); this.props.openTimePicker()}}>
+                  <View style={{flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}} >
+                    <Text style={[
+                      styles.dayText,
+                      this.props.dayText,
+                      day.today ? this.props.dayTodayText : null,
+                      day.selected ? styles.selectedText : null,
+                      day.selected ? this.props.daySelectedText : null,
+                      day.valid ? null : styles.disabledText,
+                      day.valid ? null : this.props.dayDisabledText,
+                      day.valid && !day.selected && day.extra==false ? styles.disabledText : null 
+                    ]}>
+                      {day.date}
+                    </Text>
+                    {day.valid && !day.selected && day.extra==false && <View style={{backgroundColor: 'gray',height: 3, width: 3, borderRadius: 100}} ></View>}
+                  </View>
                 </TouchableHighlight>
               )}
             </View>
@@ -255,17 +289,20 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     flexGrow: 1,
     flexDirection: 'row',
-    height: 35,
+    height: 36,
   },
   dayView: {
     flexGrow: 1,
     margin: 5,
   },
   dayText: {
-    flexGrow: 1,
-    minWidth: 30,
-    padding: 5,
+    width: 24,
+    fontSize: 16,
+    padding: 2,
     textAlign: 'center',
+    color: 'white',
+    borderRadius: 14,
+    overflow: 'hidden'
   },
   selectedText: {
     borderRadius: 5,
